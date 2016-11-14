@@ -19,6 +19,8 @@ class Command(BaseCommand):
         ### fix it without .
         if price is not None:
             price = price.replace(',', '.')
+            if '.' not in price:
+                price = '.' + price
             if price.startswith('.'):
                 price = '1' + price
             price = Decimal(price)
