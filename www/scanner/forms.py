@@ -1,8 +1,9 @@
 from django import forms
+from django.apps import apps
+from django.forms.models import inlineformset_factory
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from django.apps import apps
 
 class ReceiptForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -21,7 +22,27 @@ class ReceiptForm(forms.ModelForm):
     class Meta:
         fields = ['image']
         model = apps.get_model('scanner.Receipt')
-     
+
+
+class PurchaseListForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PurchaseListForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+    
+    class Meta:
+        model = apps.get_model('scanner.Receipt')
+        fields = ['store']
+
+
+class PurchaseListItemForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PurchaseListItemForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+    
+    class Meta:
+        model = apps.get_model('scanner.Item')
+        fields = ['given_name', 'amount']
+
 
 class ExampleForm(forms.Form):
     """ getting crispy """
@@ -66,3 +87,4 @@ class ExampleForm(forms.Form):
         required = False,
     )
 
+ItemFormSet = inlineformset_factory(apps.get_model('scanner.Receipt'), apps.get_model('scanner.Item'), form=PurchaseListItemForm)

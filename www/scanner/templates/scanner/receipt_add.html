@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiformset Demo</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="/static/jquery.formset.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $(".inline.{{ item_form.prefix }}").formset({
+                prefix: "{{ item_form.prefix }}",
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <div>
+        <h1>Add Recipe</h1>
+        <form action="." method="post">
+            {% csrf_token %}
+            <div>
+                {{ form.as_p }}
+            </div>
+            <fieldset>
+                <legend>Recipe Ingredient</legend>
+                {{ item_form.management_form }}
+                {{ item_form.non_form_errors }}
+                {% for form in item_form %}
+                    {{ form.id }}
+                    <div class="inline {{ ingredient_form.prefix }}">
+                        {{ form.description.errors }}
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                    </div>
+                {% endfor %}
+            </fieldset>
+            <input type="submit" value="Add recipe" class="submit" />
+        </form>
+    </div>
+</body>
+</html>

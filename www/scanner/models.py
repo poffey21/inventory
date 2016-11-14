@@ -41,6 +41,7 @@ class Item(models.Model):
     name = models.CharField(max_length=32, blank=True)
     given_name = models.CharField(max_length=32, blank=True)
     amount = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    receipt = models.ForeignKey('scanner.Receipt', null=True, blank=True)
     tax_code = models.CharField(max_length=32, blank=True, choices=TAX_CODES)
 
 

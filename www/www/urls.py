@@ -16,10 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from scanner.views import ReceiptUploadView
+from scanner.views import ReceiptCreateView
 from scanner.views import ExampleFormView
 
 urlpatterns = [
     url(r'^$', ReceiptUploadView.as_view()),
-    url(r'^form/$', ExampleFormView.as_view()),
+    url(r'^upload/$', ExampleFormView.as_view()),
+    url(r'^form/$', ReceiptCreateView.as_view()),
     url(r'^admin/', admin.site.urls),
 ]
