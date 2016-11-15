@@ -31,7 +31,7 @@ class PurchaseListForm(forms.ModelForm):
     
     class Meta:
         model = apps.get_model('scanner.Receipt')
-        fields = ['store']
+        fields = ['store', 'timestamp']
 
 
 class PurchaseListItemForm(forms.ModelForm):

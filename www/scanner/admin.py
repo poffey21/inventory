@@ -5,3 +5,4 @@ from . import models
 
 
 admin.site.register(models.Receipt)
+admin.site.register(models.Item)
