@@ -27,7 +27,11 @@ class Command(BaseCommand):
         return price
         
     
-    def find_words_in_line_for_aldi(self, min_y, max_y):
+    def find_words_in_line_for_aldi(self, receipt, min_y, max_y):
+        starting_x = None
+        starting_y = None
+        ending_x = None
+        ending_y = None
         words = {}
         y_history = {}
         for item in self.data:
@@ -37,12 +41,26 @@ class Command(BaseCommand):
                 max_x = max([x['x'] for x in item['boundingPoly']['vertices']])
                 y_history[min_x] = min(vertices), max(vertices)
                 words[min_x] = item['description']
+                if starting_x is None or min_x < starting_x:
+                    starting_x = min_x
+                if starting_y is None or min(vertices) < starting_y:
+                    starting_y = min(vertices)
+                if ending_x is None or max_x > ending_x:
+                    ending_x = min_x
+                if ending_y is None or max(vertices) > ending_y:
+                    ending_y = max(vertices)
                 
         if words:
             ordered_words = [words[x] for x in sorted(words)]
-            print(' '.join(ordered_words))
-            print(', '.join(['{}: {}'.format(x, y_history[x]) for x in sorted(y_history)]))
+            #print(' '.join(ordered_words))
+            #print(', '.join(['{}: {}'.format(x, y_history[x]) for x in sorted(y_history)]))
             item_price = self.convert_price_for_aldi(ordered_words[-2])
+            # print('FULL SIZE: {},{} ({}x{})'.format(starting_x, starting_y, ending_x-starting_x, ending_y-starting_y))
+            Item.objects.get_or_create(
+                receipt=receipt, given_name=' '.join(ordered_words[:2]), amount=item_price,
+                x_from_left=starting_x, y_from_top=starting_y,
+                x_size=ending_x-starting_x, y_size=ending_y-starting_y,
+            )
             return item_price
 
     def handle(self, *args, **options):
@@ -59,7 +77,7 @@ class Command(BaseCommand):
                 obj.json_data = json.dumps(results[filename])
                 obj.save()
         
-        for receipt in receipts.filter(store__isnull=False):
+        for receipt in receipts.filter(store__isnull=False, pk=1):
             store = receipt.store.franchise.name.lower()
             if hasattr(self, 'find_words_in_line_for_{}'.format(store)):
                 total_price = Decimal(0.00)
@@ -74,5 +92,5 @@ class Command(BaseCommand):
                         max_y = max(vertices) + MARGIN_OF_ERROR
                         #print("looking for items between: {} and {}".format(min_y, max_y))
                         conversion = getattr(self, 'find_words_in_line_for_{}'.format(store))
-                        total_price += conversion(min_y, max_y)
+                        total_price += conversion(receipt, min_y, max_y)
                 print('Total Price: {}'.format(total_price))

@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 import json
 
+from django.conf import settings
 from django.db import models
+from django.utils.html import format_html
+from django.urls import reverse
 
 # Create your models here.
 TAX_CODES = (
@@ -33,6 +36,9 @@ class Receipt(models.Model):
     
     def __unicode__(self):
         return self.__str__()
+        
+    def get_absolute_url(self):
+        reverse('update-receipt', kwargs={'pk': self.pk})
 
 
 class Item(models.Model):
@@ -43,6 +49,24 @@ class Item(models.Model):
     amount = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     receipt = models.ForeignKey('scanner.Receipt', null=True, blank=True)
     tax_code = models.CharField(max_length=32, blank=True, choices=TAX_CODES)
+    x_from_left = models.IntegerField(null=True, blank=True)
+    y_from_top = models.IntegerField(null=True, blank=True)
+    x_size = models.IntegerField(null=True, blank=True)
+    y_size = models.IntegerField(null=True, blank=True)
+    
+    def image_tag(self):
+        # return u'<img styles= src="%s" />' % self.receipt.image.url
+        if self.receipt and self.receipt.image.url:
+            return format_html(
+                '<div style="display: block; width: {}px; height: {}px; background: url({}); background-position: -{}px -{}px;"></div>',
+                self.x_size, self.y_size,
+                self.receipt.image.url,
+                self.x_from_left, self.y_from_top,
+            )
+        else:
+            print('no receipt or receipt image')
+    image_tag.short_description = 'Image'
+    # image_tag.allow_tags = True
 
 
 class Tax(models.Model):

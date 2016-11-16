@@ -13,15 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import url
+from django.conf.urls.static import static
 from django.contrib import admin
-from scanner.views import ReceiptUploadView
 from scanner.views import ReceiptCreateView
+from scanner.views import ReceiptUploadView
+from scanner.views import ReceiptUpdateView
 from scanner.views import ExampleFormView
 
 urlpatterns = [
     url(r'^$', ReceiptUploadView.as_view()),
+    url(r'^receipt/(?P<pk>\d+)/$', ReceiptUpdateView.as_view(), name='update-receipt'),
     url(r'^upload/$', ExampleFormView.as_view()),
     url(r'^form/$', ReceiptCreateView.as_view()),
     url(r'^admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
